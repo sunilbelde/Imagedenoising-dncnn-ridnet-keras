@@ -10,7 +10,7 @@ Creating deep learning model that removes noise out of a given noisy image
 
 ## Solution :
 
-Therea are many deep learning model that can be used for completing this task of image denoising. Now we will use Deep Convulutional Neural Network mode (DnCNN)
+Therea are many deep learning model that can be used for completing this task of image denoising. Now we will use Deep Convulutional Neural Network model (DnCNN)
 
 Architecture of the model : 
 
