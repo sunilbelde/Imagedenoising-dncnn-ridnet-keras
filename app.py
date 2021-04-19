@@ -1,3 +1,4 @@
+# Importing the required packages
 import streamlit as st
 import cv2      
 import os,urllib
@@ -6,36 +7,30 @@ import tensorflow as tf
 import time
 
 def main():
+    print(cv2.__version__)
     selected_box = st.sidebar.selectbox(
         'Choose an option..',
         ('About the Project','Evaluate the model','view source code')
         )
-    
-    #readme_text = st.markdown(get_file_content_as_string("readme.md"))
+        
+    readme_text = st.markdown(get_file_content_as_string("README.md"))
     
     if selected_box == 'About the Project':
-        about()
         st.sidebar.success('To try by yourself select "Evaluate the model".')
     if selected_box == 'Evaluate the model':
+        readme_text.empty()
         models()
     if selected_box=='view source code':
-        st.markdown(get_file_content_as_string("app.py"))
-        
-        
-def about():
-    st.write("""
-            # Image Denoising With Deep Learning Models
-         """)
+        readme_text.empty()
+        st.code(get_file_content_as_string("app.py"))
 
- 
-@st.cache
-def get_models():
-    print(tf.__version__)
-    dncnn=tf.keras.models.load_model('dncnn.h5')
-    dncnn_lite = tf.lite.Interpreter('dncnn2.tflite')
-    dncnn_lite.allocate_tensors()
-    
-    return dncnn,dncnn_lite
+        
+@st.cache(show_spinner=False)
+def get_file_content_as_string(path):
+    url = 'https://raw.githubusercontent.com/sunilbelde/Imagedenoising-dncnn-keras/master/' + path
+    response = urllib.request.urlopen(url)
+    return response.read().decode("utf-8")
+
 
 def models():
 
@@ -57,21 +52,26 @@ def models():
           
     if choice=="Use Existing Images":
     
-      image_file_chosen = st.sidebar.selectbox('Select an existing image:', get_list_of_images())
+      image_file_chosen = st.sidebar.selectbox('Select an existing image:', get_list_of_images(),8)
       
       if image_file_chosen:
-          gt=cv2.imread(os.getcwd()+'\\images\\'+image_file_chosen)
+          imagespath=os.path.join(os.getcwd(),'images')
+          gt=cv2.imread(os.path.join(imagespath,image_file_chosen))
           prediction_ui(gt)
 
 
+
+def get_list_of_images():
+    file_list = os.listdir(os.path.join(os.getcwd(),'images'))
+    return [str(filename) for filename in file_list if str(filename).endswith('.jpg')]
+    
 def prediction_ui(gt):
 
     models_load_state=st.text('\n Loading models..')
     dncnn,dncnn_lite=get_models()
     models_load_state.text('\n Models Loading..complete')
-    
-    dncnn_filesize=os.stat('dncnn.h5').st_size / (1024 * 1024)
-    dncnnlite_filesize=os.stat('dncnn2.tflite').st_size / (1024 * 1024)
+
+    dncnn_filesize,dncnnlite_filesize=get_filesizes()
     
     noise_level = st.sidebar.slider("Pick the noise level", 0, 45, 0)
           
@@ -83,7 +83,7 @@ def prediction_ui(gt):
       st.success('PSNR of Noisy image : %.3f db'%PSNR(ground_truth,noisy_image))
     submit = st.button('Predict Now')
           
-            
+  
     if submit and noise_level!=0:
         progress_bar = st.progress(0)
         start=time.time()
@@ -107,8 +107,33 @@ def prediction_ui(gt):
         st.image(denoised_image_lite)
         st.success('PSNR of denoised image : %.3f db  '%(PSNR(ground_truth,denoised_image_lite)))
         progress_bar.empty()
+        
+        st.write("""\n After optimization the size of the model is reduced by 5 MB and have the same performance(PSNR) as the original model.
+                    But here time taken by lighter version in because we perform prediction on batch of patches thus for each patch the lite version need
+                    to invoke the model, so it taking more than usual. """)
+        st.markdown("""** Note : This application is running on CPU , speed can be further increased by using GPU ** """)         
+
     elif submit==True and noise_level==0:
         st.error("Choose noise level")
+
+
+@st.cache
+def get_models():
+    dncnn=tf.keras.models.load_model('dncnn.h5')
+    dncnn_lite = tf.lite.Interpreter('dncnn2.tflite')
+    dncnn_lite.allocate_tensors()
+    
+    return dncnn,dncnn_lite
+
+  
+@st.cache
+def get_filesizes():
+    
+    dncnn_filesize=os.stat('dncnn.h5').st_size / (1024 * 1024)
+    dncnnlite_filesize=os.stat('dncnn2.tflite').st_size / (1024 * 1024)
+    
+    return dncnn_filesize,dncnnlite_filesize
+        
 def get_patches(image):
     '''This functions creates and return patches of given image with a specified patch_size'''
     image=cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
@@ -166,8 +191,6 @@ def predict_fun(model,patches_noisy,gt):
   return denoised_image
   
 
-
-  
 def predict_fun_tflite(model,patches_noisy,gt):
     
   height, width , channels= gt.shape
@@ -198,15 +221,6 @@ def PSNR(gt, image, max_value=1):
         return 100
     return 20 * np.log10(max_value / (np.sqrt(mse)))
     
-def get_list_of_images():
-    file_list = os.listdir(os.getcwd()+'\\images')
-    return [str(filename) for filename in file_list if str(filename).endswith('.jpg')]
-    
-@st.cache(show_spinner=False)
-def get_file_content_as_string(path):
-    url = 'https://raw.githubusercontent.com/sunilbelde/Imagedenoising-dncnn-keras/master/' + path
-    response = urllib.request.urlopen(url)
-    return response.read().decode("utf-8")
 
 if __name__ == "__main__":
     main()
