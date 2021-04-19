@@ -1,5 +1,4 @@
 # Image denoising using deep learning model.
-<br>
 
 ## What is noise ?
 
