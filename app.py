@@ -1,6 +1,6 @@
 import streamlit as st
 import cv2      
-import os 
+import os,urllib
 import numpy as np    
 import tensorflow as tf
 import time
@@ -19,7 +19,7 @@ def main():
     if selected_box == 'Evaluate the model':
         models()
     if selected_box=='view source code':
-        st.markdown(read_content_as_string())
+        st.markdown(get_file_content_as_string("app.py"))
         
         
 def about():
@@ -204,7 +204,7 @@ def get_list_of_images():
     
 @st.cache(show_spinner=False)
 def get_file_content_as_string(path):
-    url = 'https://raw.githubusercontent.com/streamlit/demo-self-driving/master/' + path
+    url = 'https://raw.githubusercontent.com/sunilbelde/Imagedenoising-dncnn-keras/master/' + path
     response = urllib.request.urlopen(url)
     return response.read().decode("utf-8")
 
