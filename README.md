@@ -50,6 +50,6 @@ Image showing the comparision of ground truth, noisy image and denoised image.
 Image showing patch wise noisy and denoised images.
 ![result_patches](https://user-images.githubusercontent.com/47601858/115210524-501a7700-a11c-11eb-8950-ca5897e61a72.JPG)
 
-Below plot shows the model performance on different noise levels:
+Below plot shows the model performance on different noise levels
 ![results_dncnn](https://user-images.githubusercontent.com/47601858/115216274-f74ddd00-a121-11eb-8ecc-84bac484b3c4.JPG)
 
