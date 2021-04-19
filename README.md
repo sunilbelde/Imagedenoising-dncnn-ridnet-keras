@@ -1,5 +1,6 @@
 # Image denoising using deep learning model.
 <br>
+
 ## What is noise ?
 
   An additional unnecessary pixel values are added to a image causing the loss of information.The noise can be originated by many ways such as while capturing images in low-light situations, damage of electric circuits due to heat, sensor illumination levels of a digital camera or due to the faulty memory locations in hardware or bit errors in transmission of data over long distances.
