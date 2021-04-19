@@ -39,7 +39,7 @@ Now we create 85600 patches of size 40 x 40 that was created from 400 train imag
 Model has been train for 30 epochs with Adam optimizer of learning rate=0.001 and with learning rate decay of 5% per epoch
 .Mean Squared Error is used as loss function.
 
-##Results :
+## Results :
 
 For an noisy image with psnr of 20.530 obtained denoised image which has psnr of 31.193
 
