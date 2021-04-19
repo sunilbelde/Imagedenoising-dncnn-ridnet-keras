@@ -1,6 +1,6 @@
 # Image denoising using deep learning model.
 
-
+<br>
 Creating deep learning model that removes noise out of a given noisy image
 
 ## What is noise ?
