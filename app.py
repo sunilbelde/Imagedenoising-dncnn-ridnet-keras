@@ -108,7 +108,7 @@ def prediction_ui(gt):
         progress_bar.empty()
         
         st.write("""\n After optimization the size of the model is reduced by 5 MB and have the same performance(PSNR) as the original model.
-                    But here time taken by lighter version in because we performance prediction on batch of patches for each patch the lite version need
+                    But here time taken by lighter version in because we perform prediction on batch of patches thus for each patch the lite version need
                     to invoke the model, so it taking more than usual. """)
         st.markdown("""** Note : This application is running on CPU , speed can be further increased by using GPU ** """)         
 
