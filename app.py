@@ -7,7 +7,7 @@ import tensorflow as tf
 import time
 
 def main():
-
+    #print(cv2.__version__)
     selected_box = st.sidebar.selectbox(
         'Choose an option..',
         ('About the Project','Evaluate the model','view source code')
@@ -55,22 +55,23 @@ def models():
       image_file_chosen = st.sidebar.selectbox('Select an existing image:', get_list_of_images(),8)
       
       if image_file_chosen:
-          gt=cv2.imread(os.getcwd()+'\\images\\'+image_file_chosen)
+          imagespath=os.path.join(os.getcwd(),'images')
+          gt=cv2.imread(os.path.join(imagespath,image_file_chosen))
           prediction_ui(gt)
 
 
 
 def get_list_of_images():
-    file_list = os.listdir(os.getcwd()+'\\images')
+    file_list = os.listdir(os.path.join(os.getcwd(),'images'))
     return [str(filename) for filename in file_list if str(filename).endswith('.jpg')]
     
 def prediction_ui(gt):
 
     models_load_state=st.text('\n Loading models..')
-    dncnn,dncnn_lite=get_models()
+    dncnn,dncnn_lite,ridnet,ridnet_lite=get_models()
     models_load_state.text('\n Models Loading..complete')
 
-    dncnn_filesize,dncnnlite_filesize=get_filesizes()
+    dncnn_filesize,dncnnlite_filesize,ridnet_filesize,ridnetlite_filesize=get_filesizes()
     
     noise_level = st.sidebar.slider("Pick the noise level", 0, 45, 0)
           
@@ -88,7 +89,7 @@ def prediction_ui(gt):
         start=time.time()
         progress_bar.progress(10)
         denoised_image=predict_fun(dncnn,patches_noisy,gt)
-        progress_bar.progress(60)
+        progress_bar.progress(20)
         end=time.time()
         st.header('Denoised image using DnCNN model')
         st.markdown('( Size of the model is : `%.3f` MB ) ( Time taken for prediction : `%.3f` seconds )'%(dncnn_filesize,(end-start)))
@@ -96,19 +97,41 @@ def prediction_ui(gt):
         st.success('PSNR of denoised image : %.3f db  '%(PSNR(ground_truth,denoised_image)))
         #st.success('Time taken for the prediction : %.3f seconds'%(end-start))
         
-        progress_bar.progress(70)
+        progress_bar.progress(30)
         start=time.time()
         denoised_image_lite=predict_fun_tflite(dncnn_lite,patches_noisy,gt)
         end=time.time()
         st.header('Denoised image using lite version of DnCNN model')
         st.markdown('( Size of the model is : `%.3f` MB ) ( Time taken for prediction : `%.3f` seconds )'%(dncnnlite_filesize,(end-start)))
-        progress_bar.progress(100)
+        progress_bar.progress(40)
         st.image(denoised_image_lite)
         st.success('PSNR of denoised image : %.3f db  '%(PSNR(ground_truth,denoised_image_lite)))
+        
+        start=time.time()
+        progress_bar.progress(50)
+        denoised_image=predict_fun(ridnet,patches_noisy,gt)
+        progress_bar.progress(60)
+        end=time.time()
+        st.header('Denoised image using Ridnet model')
+        st.markdown('( Size of the model is : `%.3f` MB ) ( Time taken for prediction : `%.3f` seconds )'%(ridnet_filesize,(end-start)))
+        st.image(denoised_image)
+        st.success('PSNR of denoised image : %.3f db  '%(PSNR(ground_truth,denoised_image)))        
+
+        progress_bar.progress(70)
+        start=time.time()
+        denoised_image_lite=predict_fun_tflite(ridnet_lite,patches_noisy,gt)
+        end=time.time()
+        st.header('Denoised image using lite version of RIDNET model')
+        st.markdown('( Size of the model is : `%.3f` MB ) ( Time taken for prediction : `%.3f` seconds )'%(ridnetlite_filesize,(end-start)))
+        progress_bar.progress(90)
+        st.image(denoised_image_lite)
+        st.success('PSNR of denoised image : %.3f db  '%(PSNR(ground_truth,denoised_image_lite)))
+        
+        progress_bar.progress(100)
         progress_bar.empty()
         
-        st.write("""\n After optimization the size of the model is reduced by 5 MB and have the same performance(PSNR) as the original model.
-                    But here time taken by lighter version in because we perform prediction on batch of patches thus for each patch the lite version need
+        st.write("""\n After optimization the size of the DnCNN and RIDNET models are reduced by 5 MB,12MB respectively and have the same performance(PSNR) as the original models.
+                    But here time taken by lighter versions is more because we perform prediction on batch of patches thus for each patch the lite version need
                     to invoke the model, so it taking more than usual. """)
         st.markdown("""** Note : This application is running on CPU , speed can be further increased by using GPU ** """)         
 
@@ -119,10 +142,14 @@ def prediction_ui(gt):
 @st.cache
 def get_models():
     dncnn=tf.keras.models.load_model('dncnn.h5')
+    ridnet=tf.keras.models.load_model('ridnet.h5')
     dncnn_lite = tf.lite.Interpreter('dncnn2.tflite')
     dncnn_lite.allocate_tensors()
+
+    ridnet_lite = tf.lite.Interpreter('ridnet.tflite')
+    ridnet_lite.allocate_tensors()
     
-    return dncnn,dncnn_lite
+    return dncnn,dncnn_lite,ridnet,ridnet_lite
 
   
 @st.cache
@@ -130,8 +157,9 @@ def get_filesizes():
     
     dncnn_filesize=os.stat('dncnn.h5').st_size / (1024 * 1024)
     dncnnlite_filesize=os.stat('dncnn2.tflite').st_size / (1024 * 1024)
-    
-    return dncnn_filesize,dncnnlite_filesize
+    ridnet_filesize=os.stat('ridnet.h5').st_size / (1024 * 1024)
+    ridnetlite_filesize=os.stat('ridnet.tflite').st_size / (1024 * 1024)
+    return dncnn_filesize,dncnnlite_filesize,ridnet_filesize,ridnetlite_filesize
         
 def get_patches(image):
     '''This functions creates and return patches of given image with a specified patch_size'''
