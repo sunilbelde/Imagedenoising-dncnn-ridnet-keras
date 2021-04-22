@@ -81,54 +81,65 @@ def prediction_ui(gt):
     st.image(noisy_image)
     if noise_level!=0:
       st.success('PSNR of Noisy image : %.3f db'%PSNR(ground_truth,noisy_image))
-    submit = st.button('Predict Now')
+      
+    model = st.sidebar.radio("Choose a model to predict",('DNCNN', 'RIDNET'),0)
+    
+    
+    submit = st.sidebar.button('Predict Now')
           
   
     if submit and noise_level!=0:
-        progress_bar = st.progress(0)
-        start=time.time()
-        progress_bar.progress(10)
-        denoised_image=predict_fun(dncnn,patches_noisy,gt)
-        progress_bar.progress(20)
-        end=time.time()
-        st.header('Denoised image using DnCNN model')
-        st.markdown('( Size of the model is : `%.3f` MB ) ( Time taken for prediction : `%.3f` seconds )'%(dncnn_filesize,(end-start)))
-        st.image(denoised_image)
-        st.success('PSNR of denoised image : %.3f db  '%(PSNR(ground_truth,denoised_image)))
-        #st.success('Time taken for the prediction : %.3f seconds'%(end-start))
+    
+        if model=='DNCNN':
+            progress_bar = st.progress(0)
+            start=time.time()
+            progress_bar.progress(10)
+            denoised_image=predict_fun(dncnn,patches_noisy,gt)
+            progress_bar.progress(40)
+            end=time.time()
+            st.header('Denoised image using DnCNN model')
+            st.markdown('( Size of the model is : `%.3f` MB ) ( Time taken for prediction : `%.3f` seconds )'%(dncnn_filesize,(end-start)))
+            st.image(denoised_image)     
+            st.success('PSNR of denoised image : %.3f db  '%(PSNR(ground_truth,denoised_image))
+            
+            progress_bar.progress(60)
+            start=time.time()
+            denoised_image_lite=predict_fun_tflite(dncnn_lite,patches_noisy,gt)
+            end=time.time()
+            st.header('Denoised image using lite version of DnCNN model')
+            st.markdown('( Size of the model is : `%.3f` MB ) ( Time taken for prediction : `%.3f` seconds )'%(dncnnlite_filesize,(end-start)))
+            progress_bar.progress(90)
+            st.image(denoised_image_lite)
+            st.success('PSNR of denoised image : %.3f db  '%(PSNR(ground_truth,denoised_image_lite)))
+            progress_bar.progress(100)
+            progress_bar.empty()
+            
         
-        progress_bar.progress(30)
-        start=time.time()
-        denoised_image_lite=predict_fun_tflite(dncnn_lite,patches_noisy,gt)
-        end=time.time()
-        st.header('Denoised image using lite version of DnCNN model')
-        st.markdown('( Size of the model is : `%.3f` MB ) ( Time taken for prediction : `%.3f` seconds )'%(dncnnlite_filesize,(end-start)))
-        progress_bar.progress(40)
-        st.image(denoised_image_lite)
-        st.success('PSNR of denoised image : %.3f db  '%(PSNR(ground_truth,denoised_image_lite)))
+        elif model=='RIDNET':
         
-        start=time.time()
-        progress_bar.progress(50)
-        denoised_image=predict_fun(ridnet,patches_noisy,gt)
-        progress_bar.progress(60)
-        end=time.time()
-        st.header('Denoised image using Ridnet model')
-        st.markdown('( Size of the model is : `%.3f` MB ) ( Time taken for prediction : `%.3f` seconds )'%(ridnet_filesize,(end-start)))
-        st.image(denoised_image)
-        st.success('PSNR of denoised image : %.3f db  '%(PSNR(ground_truth,denoised_image)))        
+            progress_bar = st.progress(0)
+            start=time.time()
+            progress_bar.progress(10)
+            denoised_image=predict_fun(ridnet,patches_noisy,gt)
+            progress_bar.progress(40)
+            end=time.time()
+            st.header('Denoised image using Ridnet model')
+            st.markdown('( Size of the model is : `%.3f` MB ) ( Time taken for prediction : `%.3f` seconds )'%(ridnet_filesize,(end-start)))
+            st.image(denoised_image)
+            st.success('PSNR of denoised image : %.3f db  '%(PSNR(ground_truth,denoised_image)))        
 
-        progress_bar.progress(70)
-        start=time.time()
-        denoised_image_lite=predict_fun_tflite(ridnet_lite,patches_noisy,gt)
-        end=time.time()
-        st.header('Denoised image using lite version of RIDNET model')
-        st.markdown('( Size of the model is : `%.3f` MB ) ( Time taken for prediction : `%.3f` seconds )'%(ridnetlite_filesize,(end-start)))
-        progress_bar.progress(90)
-        st.image(denoised_image_lite)
-        st.success('PSNR of denoised image : %.3f db  '%(PSNR(ground_truth,denoised_image_lite)))
-        
-        progress_bar.progress(100)
-        progress_bar.empty()
+            progress_bar.progress(60)
+            start=time.time()
+            denoised_image_lite=predict_fun_tflite(ridnet_lite,patches_noisy,gt)
+            end=time.time()
+            st.header('Denoised image using lite version of RIDNET model')
+            st.markdown('( Size of the model is : `%.3f` MB ) ( Time taken for prediction : `%.3f` seconds )'%(ridnetlite_filesize,(end-start)))
+            progress_bar.progress(90)
+            st.image(denoised_image_lite)
+            st.success('PSNR of denoised image : %.3f db  '%(PSNR(ground_truth,denoised_image_lite)))
+            
+            progress_bar.progress(100)
+            progress_bar.empty()
         
         st.write("""\n After optimization the size of the DnCNN and RIDNET models are reduced by 5 MB,12MB respectively and have the same performance(PSNR) as the original models.
                     But here time taken by lighter versions is more because we perform prediction on batch of patches thus for each patch the lite version need
