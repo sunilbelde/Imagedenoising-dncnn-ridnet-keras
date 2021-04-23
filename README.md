@@ -71,7 +71,7 @@ Below plot shows the model performance on different noise levels
 
 ## Comparision of the models :
 
-Tabulating the results from the models with different noise level 
+Tabulating the results(PSNR in db) from the models with different noise level 
 
 ![model_comparision](https://user-images.githubusercontent.com/47601858/115832522-9d565b80-a430-11eb-8dc6-d1eda1be99fe.JPG)
 
