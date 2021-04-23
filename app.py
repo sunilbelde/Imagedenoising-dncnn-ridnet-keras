@@ -146,8 +146,8 @@ def prediction_ui(gt):
                     to invoke the model, so it taking more than usual. """)
         st.markdown("""** Note : This application is running on CPU , speed can be further increased by using GPU ** """)         
 
-    elif submit==True and noise_level==0:
-        st.error("Choose a minimum noise level of 5..")
+    elif submit==True and noise_level<5:
+        st.error("Choose a minimum noise level of 5 ...")
 
 
 @st.cache
