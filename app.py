@@ -52,7 +52,7 @@ def models():
           
     if choice=="Use Existing Images":
     
-      image_file_chosen = st.sidebar.selectbox('Select an existing image:', get_list_of_images(),8)
+      image_file_chosen = st.sidebar.selectbox('Select an existing image:', get_list_of_images(),10)
       
       if image_file_chosen:
           imagespath=os.path.join(os.getcwd(),'images')
@@ -88,7 +88,7 @@ def prediction_ui(gt):
     submit = st.sidebar.button('Predict Now')
           
   
-    if submit and noise_level!=0:
+    if submit and noise_level>=5:
     
         if model=='DNCNN':
             progress_bar = st.progress(0)
@@ -147,7 +147,7 @@ def prediction_ui(gt):
         st.markdown("""** Note : This application is running on CPU , speed can be further increased by using GPU ** """)         
 
     elif submit==True and noise_level==0:
-        st.error("Choose noise level")
+        st.error("Choose a minimum noise level of 5..")
 
 
 @st.cache
