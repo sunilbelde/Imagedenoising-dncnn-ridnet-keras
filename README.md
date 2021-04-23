@@ -8,7 +8,8 @@
 
 ## Solution :
 
-1) Using DNCNN model.
+1) Using DNCNN model :
+
 Therea are many deep learning model that can be used for completing this task of image denoising. Now we will use Deep Convulutional Neural Network model (DnCNN)
 
 Architecture of the model : 
@@ -22,7 +23,7 @@ x=y-R
 
 Research paper : https://arxiv.org/pdf/1608.03981v1.pdf
 
-2) Using RIDNET model.
+2) Using RIDNET model :
 
 Real Image Denoising with Feature Attention.
 
