@@ -62,8 +62,11 @@ def models():
 
 
 def get_list_of_images():
+    
     file_list = os.listdir(os.path.join(os.getcwd(),'images'))
-    return [str(filename) for filename in file_list if str(filename).endswith('.jpg')]
+    filenames=sorted([str(filename) for filename in file_list if str(filename).endswith('.jpg')])
+    
+    return filenames
     
 def prediction_ui(gt):
 
